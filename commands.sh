@@ -11,11 +11,14 @@ for d in */; do
 	# Move to d
 	cd "$d"
 
+	# Store graph stats (nodes, edges, cyclic, self-loops)
+	vg stats -zAL graph.gfa > stats.txt
+
     # Generate gam and reads in fasta format
-	vg sim -x graph.gfa -n 1 -s 77 -a | tee sim.gam | vg view -aj - | jq -r '[.name, .sequence] | @tsv' | awk '{ print ">"$1"\n"$2; }' > reads.fa
+	vg sim -x graph.gfa -n 10 -s 77 -a | tee sim.gam | vg view -aj - | jq -r '[.name, .sequence] | @tsv' | awk '{ print ">"$1"\n"$2; }' > reads.fa
 
 	# Convert sim.gam to gaf
-	vg convert --gam-to-gaf sim.gam graph.gfa >sim.gaf
+	vg convert --gam-to-gaf sim.gam graph.gfa > sim.gaf
 
 	# Run vgaligner
 	/usr/bin/time -o aliger_results.txt --verbose vgaligner index  -i graph.gfa -k 11
