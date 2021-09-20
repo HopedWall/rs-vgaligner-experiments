@@ -11,18 +11,23 @@ for d in */; do
 	# Move to d
 	cd "$d"
 
-	# Store graph stats (nodes, edges, cyclic, self-loops)
-	vg stats -zAL graph.gfa > stats.txt
+	# Store original graph stats (nodes, edges, cyclic, self-loops)
+	vg stats -zAL graph.gfa > og_stats.txt
+
+	# Sort with odgi and re-covnert to gfa
+	odgi sort -i graph.gfa -o sorted.odgi -p Ygs -P
+	odgi view -i sorted.odgi -g > sorted_graph.gfa
+	vg stats -zAL sorted_graph.gfa > sorted_stats.txt
 
     # Generate gam and reads in fasta format
-	vg sim -x graph.gfa -n 10 -s 77 -a | tee sim.gam | vg view -aj - | jq -r '[.name, .sequence] | @tsv' | awk '{ print ">"$1"\n"$2; }' > reads.fa
+	vg sim -x sorted_graph.gfa -n 10 -s 77 -a | tee sim.gam | vg view -aj - | jq -r '[.name, .sequence] | @tsv' | awk '{ print ">"$1"\n"$2; }' > reads.fa
 
 	# Convert sim.gam to gaf
-	vg convert --gam-to-gaf sim.gam graph.gfa > sim.gaf
+	vg convert --gam-to-gaf sim.gam sorted_graph.gfa > sim.gaf
 
 	# Run vgaligner
-	/usr/bin/time -o aliger_results.txt --verbose vgaligner index  -i graph.gfa -k 11
-	/usr/bin/time -o mapper_results.txt --verbose vgaligner map -i graph.idx -f reads.fa --also-align
+	/usr/bin/time -o aliger_results.txt --verbose vgaligner index  -i sorted_graph.gfa -k 11
+	/usr/bin/time -o mapper_results.txt --verbose vgaligner map -i sorted_graph.idx -f reads.fa --also-align
 	#vgaligner index  -i graph.gfa -k 11
 	#vgaligner map -i graph.idx -f reads.fa --also-align
 
