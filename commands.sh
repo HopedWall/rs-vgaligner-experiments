@@ -32,7 +32,7 @@ for d in */; do
 	#vgaligner map -i graph.idx -f reads.fa --also-align
 
 	# Run gamcompare
-	python3 ../gafcompare.py reads-alignments.gaf sim.gaf
+	python3 ../gafcompare.py reads-alignments.gaf sim.gaf > comparison_results.txt
 
 	# Move back to main folder
 	cd ..
