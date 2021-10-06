@@ -71,4 +71,7 @@ for i in range(total_ref_reads):
 
 print("Matching reads: {}/{}".format(reads_found, total_ref_reads))
 print("AVG Jaccard is: {}".format(sum(jaccard_list)/len(jaccard_list) if jaccard_list else 0))
-print("Jaccard list is: \n {}".format(','.join(jaccard_list)))
+
+# Print jaccard as comma-separated string
+jaccard_list_string = [str(val) for val in jaccard_list]
+print("Jaccard list is: \n {}".format(','.join(jaccard_list_string)))
