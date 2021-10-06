@@ -20,28 +20,29 @@ for d in */; do
 	vg stats -zAL sorted_graph.gfa > sorted_stats.txt
 
     # Generate gam and reads in fasta format
-	vg sim -x sorted_graph.gfa -n 10 -s 77 -a | tee sim.gam | vg view -aj - | jq -r '[.name, .sequence] | @tsv' | awk '{ print ">"$1"\n"$2; }' > reads.fa
+	vg sim -x sorted_graph.gfa -n 100 -s 77 -a | tee sim.gam | vg view -aj - | jq -r '[.name, .sequence] | @tsv' | awk '{ print ">"$1"\n"$2; }' > reads.fa
 
 	# Convert sim.gam to gaf
 	vg convert --gam-to-gaf sim.gam sorted_graph.gfa > sim.gaf
 
-	# Run vgaligner
-	/usr/bin/time -o aliger_results.txt --verbose vgaligner index  -i sorted_graph.gfa -k 11
-	/usr/bin/time -o mapper_results.txt --verbose vgaligner map -i sorted_graph.idx -f reads.fa --also-align
-	#vgaligner index  -i graph.gfa -k 11
-	#vgaligner map -i graph.idx -f reads.fa --also-align
+	# Run single-thread
+	/usr/bin/time -o aliger_stats_single.txt --verbose vgaligner index  -i sorted_graph.gfa -k 11 -n 1
+	/usr/bin/time -o mapper_stats_single.txt --verbose vgaligner map -i sorted_graph.idx -f reads.fa --also-align -n 1
+
+	# Run multi-thread
+	/usr/bin/time -o aliger_stats_multi.txt --verbose vgaligner index  -i sorted_graph.gfa -k 11
+	/usr/bin/time -o mapper_stats_multi.txt --verbose vgaligner map -i sorted_graph.idx -f reads.fa --also-align
 
 	# Run gamcompare
 	python3 ../gafcompare.py reads-alignments.gaf sim.gaf > comparison_results.txt
+
+	# Run graphaligner
+	touch graphaligner.gaf
+	GraphAligner -g graph.gfa -f reads.fa -a graphaligner.gaf -x vg
+	python3 ../gafcompare.py graphaligner.gaf sim.gaf > graphaligner_comparison.txt
 
 	# Move back to main folder
 	cd ..
 
 	echo "========End pipeline for $d======="
-
-	# Convert my result to gam
-	#vg convert graph.gfa --gam-to-gaf reads-alignments.gaf > reads-alignments.gam
-
-	# Compare reads
-	#vg gamcompare reads-alignments.gam sim.gam -s -r 10
 done

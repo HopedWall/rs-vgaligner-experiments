@@ -69,14 +69,6 @@ for i in range(total_ref_reads):
                 print("jaccard for {} is: {}".format(ref_gaf_read_name, jaccard))
                 jaccard_list.append(jaccard)
 
-        '''
-        # Figure out how many exact matches there are
-        matches = 0
-        for (my, ref) in zip(my_gaf_tuples, ref_gaf_tuples):
-                if my == ref:
-                        matches += 1
-        print("Path matches: {}/{}".format(matches, len(ref_gaf_tuples)))
-        '''
-
 print("Matching reads: {}/{}".format(reads_found, total_ref_reads))
-print("AVG Jaccard is: {}".format(sum(jaccard_list)/len(jaccard_list)))
+print("AVG Jaccard is: {}".format(sum(jaccard_list)/len(jaccard_list) if jaccard_list else 0))
+print("Jaccard list is: \n {}".format(','.join(jaccard_list)))
