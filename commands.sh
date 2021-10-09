@@ -46,7 +46,7 @@ for d in */; do
 	# Run vg
 	vg view -F sorted_graph.gfa -v > graph.vg
 	/usr/bin/time -o vgind_stats_multi.txt --verbose vg index graph.vg -x graph.xg -g graph.gcsa -k 11
-	/usr/bin/time -o vgmap_stats_multi.txt --verbose vg map -d graph -f single-read-test.fa > vg_result.gam
+	/usr/bin/time -o vgmap_stats_multi.txt --verbose vg map -d graph -f reads.fa > vg_result.gam
 	vg convert --gam-to-gaf vg_result.gam sorted_graph.gfa > vg_result.gaf
 	python3 ../gafcompare.py vg_result.gaf sim.gaf > graphaligner_comparison.txt
 
